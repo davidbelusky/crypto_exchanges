@@ -11,12 +11,10 @@
 ## Info:
 **Get list of crypto and fiat currencies** - from online API. Fiat and crypto currencies list getting from module data.py. **Exchange rates** from online API.
 
-## Functions:
+## ADD crypto exchange
+### Request:
 
-### ADD crypto exchange 
-#### Request:
-
-**_name_** - Unique name, without any special characters only 'underscore' is allowed.Numbers are allowed. ex. First_exchange1
+**_name_** - Unique name, without any special characters only 'underscore' is allowed. Numbers are allowed. ex. First_exchange1
 
 **_currency_** - Currency in which total amount for exchange will be displayed. Must be 3 letter shortcut of fiat currency ex. 'USD'
 
@@ -28,7 +26,7 @@
 }
 ```
 
-#### Response:
+### Response:
 New created object or error message. 
 ```json 
 {
@@ -37,8 +35,8 @@ New created object or error message.
 }
 ```
 
-### Deposit exchange -
-#### Request:
+## Deposit exchange
+### Request:
 
 **_amount_** - Float number
 
@@ -52,12 +50,12 @@ New created object or error message.
 } 
 ```
 
-#### Response:
+### Response:
 'Success' or error message
 
 
-### Update cryptocurrencies within exchange
-#### Request:
+## Update cryptocurrencies within exchange
+### Request:
 
 **_name_** - Crypto name ex. 'Bitcoin', mandatory if **currency** is not inserted.
 
@@ -65,7 +63,7 @@ New created object or error message.
 
 **_favourite_** - Boolean True/False. Default = False
 
-**PUT** /exchanges/{int:exchange_id}/currencie
+**PUT** `/exchanges/{int:exchange_id}/currencie`
  ```json
 {
   "name": "Bitcoin",
@@ -85,7 +83,7 @@ New created object or error message.
 
 - **UPDATE** If name/currency exist for exchange_id then update favourite parameter in DB
 
-#### Response:
+### Response:
 All crypto currencies for specific exchange_id or error message.
 
 ```json 
@@ -109,8 +107,8 @@ All crypto currencies for specific exchange_id or error message.
 ]
 ```
 
-### Create trade
-#### Request:
+## Create trade
+### Request:
 
 **_amount_** - Float number
 
@@ -127,13 +125,13 @@ All crypto currencies for specific exchange_id or error message.
 }
 ```
 
-#### Info:
+### Info:
 - Cannot convert from fiat to fiat or crypto to crypto. Only fiat to crypto or crypto to fiat is allowed
 - Check if trade amount <= balance amount
 - Convert trade fiat to exchange fiat currency
 - Add/Substract from crypto and exchange based on operation
 
-#### Response:
+### Response:
 traded amount, actual exchange currency amount,exchange currency or error message
 
 ```json 
@@ -144,8 +142,8 @@ traded amount, actual exchange currency amount,exchange currency or error messag
 }
 ```
 
-### History of trades
-#### Request:
+## History of trades
+### Request:
 **_offset_** - start from
 
 **_limit_** - max to show
@@ -156,13 +154,13 @@ traded amount, actual exchange currency amount,exchange currency or error messag
 
 **_date_from_** - trade_date >= date_from
 
-**_date_to**  - trade_date <= date_to
+**_date_to_**  - trade_date <= date_to
 
-**GET** - `/history?offset={offset}&limit={limit}&exchange_id={exchange_id}&search={search}&date_from={date_from}&date_to={date_to}`
+**GET** `/history?offset={offset}&limit={limit}&exchange_id={exchange_id}&search={search}&date_from={date_from}&date_to={date_to}`
 
 ex. ```URL http://127.0.0.1:5000/exchanges/history?exchange_id=1&limit=5&offset=2&search=Bi&date_from=5.11.2019&date_to=15.2.2020```
 
-#### Response:
+### Response:
 list of json records with applied parameters filter
 
 ```json  
