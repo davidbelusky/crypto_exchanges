@@ -55,12 +55,6 @@ class Get_currency_api:
         headers = {'X-CoinAPI-Key': '4ED760E9-11CC-4B1D-A423-A263D6BF8FDC'}
         response = requests.get(url, headers=headers)
         json = response.json()
-        # json = None
-        # if base == 'EUR' and quote == 'BTC':
-        #     json = {'rate': 0.0001116596551742244}
-        # elif base == 'BTC' and quote == 'EUR':
-        #     json = {'rate': 8958.385661352231}
-
         return json
 
 class DecimalEncoder(json.JSONEncoder):
@@ -109,4 +103,3 @@ class Trade_history_sql_generate():
         sql = sql[:-4] + paginate_string
         return sql
 
-#print(Get_currency_api.get_crypto_rate('usd','btc'))

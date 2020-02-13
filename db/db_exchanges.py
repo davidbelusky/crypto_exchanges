@@ -24,14 +24,17 @@ class DB_exchanges():
         self.cursor.execute('CREATE TABLE IF NOT EXISTS deposits (ID SERIAL PRIMARY KEY,deposit_date TIMESTAMP,exchange_id INT references crypto_exchanges(ID),curr VARCHAR NOT NULL,amount DECIMAL)')
         self.conn.commit()
 
-    def insert_exchange(self,json):
+    def insert_exchange(self,json,testing):
         """
         Insert new unique crypto exchange.
         :param json: json with unique name and currency
         :return: IF success inserted json, ELSE message
         """
+        if testing: table = 'test_crypto_exchanges'
+        else: table = 'crypto_exchanges'
+
         try:
-            self.cursor.execute("INSERT INTO crypto_exchanges VALUES (DEFAULT, %s, %s, %s) RETURNING *",
+            self.cursor.execute("INSERT INTO {} VALUES (DEFAULT, %s, %s, %s) RETURNING *".format(table),
                                 (json['name'],json['currency'],0))
         except errors.UniqueViolation:
             #If name already exist in table return message
@@ -43,8 +46,11 @@ class DB_exchanges():
 
         return json_return
 
-    def insert_deposit_exchange(self,json):
-        exchange_currency = self.select_check_exchange(json['exchange_id'])
+    def insert_deposit_exchange(self,json,testing):
+        if testing: exchange_table,deposit_table = ['test_crypto_exchanges','test_deposits']
+        else: exchange_table,deposit_table = ['crypto_exchanges','deposits']
+
+        exchange_currency = self.select_check_exchange(json['exchange_id'],exchange_table)
         if exchange_currency == None:
             return {'message':'Exchange id doesnt exist'},400
         #Get currency and actual amount of exchange id
@@ -52,41 +58,19 @@ class DB_exchanges():
 
         converted_amount = Add_exchange_model().deposit_convert_currency(json['currency'],exchange_currency,json['amount'])
         total_amount = float(converted_amount + float(actual_exchange_amount))
+        #If testing = True set table for testing
 
-        self.cursor.execute("INSERT INTO deposits VALUES (DEFAULT, NOW(), %s, %s, %s)",
+        self.cursor.execute("INSERT INTO {} VALUES (DEFAULT, NOW(), %s, %s, %s)".format(deposit_table),
                                (json['exchange_id'],json['currency'],json['amount']))
 
-        self.cursor.execute("UPDATE crypto_exchanges SET amount = {} WHERE  id = {}".format(total_amount,json['exchange_id']))
+        self.cursor.execute("UPDATE {} SET amount = {} WHERE  id = {}".format(exchange_table,total_amount,json['exchange_id']))
 
         self.conn.commit()
         self.close_conn()
         return 'success'
 
-    def select_check_exchange(self,exchange_id):
-        self.cursor.execute("SELECT curr,amount FROM crypto_exchanges WHERE id = '{}'".format(exchange_id))
+    def select_check_exchange(self,exchange_id,table = 'crypto_exchanges'):
+        self.cursor.execute("SELECT curr,amount FROM {} WHERE id = '{}'".format(table,exchange_id))
         currency = self.cursor.fetchone()
         return currency
 
-    def delete_table(self):
-        #self.cursor.execute('DROP TABLE crypto_exchanges')
-        #self.cursor.execute('DROP TABLE deposits')
-        #self.cursor.execute('DROP TABLE crypto_currencies')
-        self.cursor.execute('DROP TABLE trades')
-        self.conn.commit()
-        self.close_conn()
-
-    def delete_all(self):
-        #self.cursor.execute('DELETE from crypto_exchanges')
-        #self.cursor.execute('DELETE from deposits')
-        #self.cursor.execute('DELETE from crypt_currencies')
-        self.conn.commit()
-        self.close_conn()
-
-
-
-
-#DB_exchanges().create_tables_exchanges()
-#DB_exchanges().insert_exchange()
-#print(DB_exchanges().select_check_exchange(2))
-#DB_exchanges().delete_table()
-#DB_exchanges().delete_all()

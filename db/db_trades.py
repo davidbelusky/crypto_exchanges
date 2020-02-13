@@ -1,7 +1,5 @@
 from db.db_setting import DB_connection
-from psycopg2 import errors
 from psycopg2.extras import RealDictCursor
-import datetime
 from models.others import DecimalEncoder
 from models.others import Trade_history_sql_generate
 
@@ -11,6 +9,7 @@ class DB_trades():
         # Create connection and cursor.
         self.conn = DB_connection().db_set()
         self.cursor = self.conn.cursor()
+        #self.create_table_trades()
 
     def close_conn(self):
         #Close connection and cursor
@@ -96,7 +95,3 @@ class DB_trades():
 
 
 
-#DB_trades().select_trade_history({'offset': 2, 'limit': None, 'exchange_id': None, 'search': 'i', 'date_from': datetime.datetime(2019, 11, 5, 0, 0), 'date_to': datetime.datetime(2020, 2, 15, 0, 0)})
-#DB_trades().insert_trade_record({'currency_in':'EUR','currency_out':'USD','amount':20,'exchange_id':1})
-#print(DB_trades().select_actual_exchange_amount(False,6,'BTC'))
-#DB_trades().create_table_trades()

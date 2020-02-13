@@ -1,10 +1,6 @@
 from db.db_setting import DB_connection
 from psycopg2 import errors
 from psycopg2.extras import RealDictCursor
-from flask import jsonify
-import json
-
-from decimal import Decimal
 from models.others import DecimalEncoder
 
 class DB_crypto_currencies():
@@ -62,9 +58,13 @@ class DB_crypto_currencies():
             return {'message':'Crypto name was not founded for this exchange_id'}
         return crypto_name
 
-    def insert_crypto_currency(self,json):
+    def insert_crypto_currency(self,json,testing):
+        #If testing True create table for testing
+        if testing: table = 'test_crypto_currencies'
+        else: table = 'crypto_currencies'
+
         try:
-            self.cursor.execute("INSERT INTO crypto_currencies VALUES (DEFAULT, %s, %s, %s, %s, %s)",
+            self.cursor.execute("INSERT INTO {} VALUES (DEFAULT, %s, %s, %s, %s, %s)".format(table),
                                 (json['name'], json['currency'], json['favourite'],0,json['exchange_id']))
         except errors.ForeignKeyViolation:
             return {'message':'exchange id: {} doesnt exist'.format(json['exchange_id'])},400
@@ -82,25 +82,5 @@ class DB_crypto_currencies():
         self.conn.commit()
         self.close_conn()
 
-    def delete_table(self):
-        #self.cursor.execute('DROP TABLE test1')
-        #self.cursor.execute('DROP TABLE test2dep')
-        #self.cursor.execute('DROP TABLE test3cry')
-        #self.cursor.execute('DROP TABLE test4tra')
-        self.conn.commit()
-        self.close_conn()
-
-    def delete_all(self):
-        self.cursor.execute('DELETE from crypto_currencies')
-        #self.cursor.execute('DELETE from deposits')
-        self.conn.commit()
-        self.close_conn()
-
-
-
-#print(DB_crypto_currencies().select_crypto_name(1,'EUR','BTC'))
-#DB_crypto_currencies().create_table_crypto_currencies()
-#DB_crypto_currencies().delete_all()
-#DB_crypto_currencies().delete_table()
 
 
