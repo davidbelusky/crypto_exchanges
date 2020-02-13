@@ -17,47 +17,47 @@ class Update_crypto_currency_model:
         """
 
         if ('name' not in json) and ('currency' not in json):
-            return {'message':'json must have name or currency key'}
+            return {'message':'json must have name or currency key'},400
 
         #Validate name and currency if both was inputted
         correct = False
         if ('name' in json) and ('currency' in json):
             #Validate name and currency input
             json['name'] = Correct_string.string_corrections(json['name'])
-            if json['name'] == None: return {'message':'Name cannot have any special characters only underscore is allowed'}
+            if json['name'] == None: return {'message':'Name cannot have any special characters only underscore is allowed'},400
             json['currency'] = json['currency'].strip().upper()
-            if len(json['currency']) != 3: return {'message':'currency must be 3 character length'}
+            if len(json['currency']) != 3: return {'message':'currency must be 3 character length'},400
 
             #Validate input currency and name of cryptocurrency
             for asset in self.crypto_list:
                 if (asset['asset_id'].upper() == json['currency']) and (asset['name'].capitalize() == json['name']):
                     correct = True
 
-            if correct == False: return {'message': 'wrong input for name or currency'}
+            if correct == False: return {'message': 'wrong input for name or currency'},400
 
         #Validate name if only name was inputted
         elif ('name' in json) and ('currency' not in json):
             json['name'] = Correct_string.string_corrections(json['name'])
-            if json['name'] == None: return {'message': 'Name cannot have any special characters only underscore is allowed'}
+            if json['name'] == None: return {'message': 'Name cannot have any special characters only underscore is allowed'},400
 
             for asset in self.crypto_list:
                 if asset['name'].capitalize() == json['name']:
                     json['currency'] = asset['asset_id'].upper()
                     correct = True
 
-            if correct == False: return {'message':'wrong input for name'}
+            if correct == False: return {'message':'wrong input for name'},400
 
         #Validate currency if only currency was inputted
         elif ('name' not in json) and ('currency' in json):
             json['currency'] = json['currency'].strip().upper()
-            if len(json['currency']) != 3: return {'message': 'currency must be 3 character length'}
+            if len(json['currency']) != 3: return {'message': 'currency must be 3 character length'},400
 
             for asset in self.crypto_list:
                 if asset['asset_id'].upper() == json['currency']:
                     json['name'] = asset['name'].capitalize()
                     correct = True
 
-            if correct == False: return {'message':'wrong input for currency'}
+            if correct == False: return {'message':'wrong input for currency'},400
 
         # if 'favourite' not in json:
         #     json['favourite'] = False

@@ -2,8 +2,7 @@ import re
 import requests
 import json
 import decimal
-from psycopg2.extras import RealDictRow
-from decimal import Decimal
+
 
 class Correct_string:
     @staticmethod
@@ -56,20 +55,13 @@ class Get_currency_api:
         headers = {'X-CoinAPI-Key': '4ED760E9-11CC-4B1D-A423-A263D6BF8FDC'}
         response = requests.get(url, headers=headers)
         json = response.json()
+        # json = None
+        # if base == 'EUR' and quote == 'BTC':
+        #     json = {'rate': 0.0001116596551742244}
+        # elif base == 'BTC' and quote == 'EUR':
+        #     json = {'rate': 8958.385661352231}
+
         return json
-
-
-    # @staticmethod
-    # def get_fiat_rate(base,quote):
-    #     """
-    #     :param base: base currency
-    #     :param quote: quote
-    #     :return: specific rate
-    #     """
-    #     fiat_currency_request = requests.get('https://api.exchangeratesapi.io/latest?base={}'.format(base))
-    #     # Return rate
-    #     fiat_currency_rate = fiat_currency_request.json()
-    #     return fiat_currency_rate['rates'][quote]
 
 class DecimalEncoder(json.JSONEncoder):
     """
@@ -80,3 +72,41 @@ class DecimalEncoder(json.JSONEncoder):
             return float(o)
         return super(DecimalEncoder, self).default(o)
 
+class Trade_history_sql_generate():
+    @staticmethod
+    def generate_sql_history_filter(json):
+        """
+        Generate SQL to SELECT * data and filter based on inputted parameters
+        :param json:
+        :return: SQL in str format
+        """
+
+        sql = "SELECT * FROM trades WHERE "
+        # List of parameters to use in WHERE clause
+        where_conditions_list = ['exchange_id', 'search', 'date_from', 'date_to']
+        # List of parameters use for paginate
+        paginate_conditions_list = ['limit', 'offset']
+        paginate_actual_lst = []
+        for k, v in json.items():
+            if v == None:
+                continue
+            if k in where_conditions_list:
+                if k == 'date_from':
+                    sql += 'trade_date' + " >= '" + str(v.date()) + "' AND "
+                elif k == 'date_to':
+                    sql += 'trade_date' + " <= '" + str(v.date()) + "' AND "
+                elif k == 'search':
+                    sql += 'name' + " LIKE '%" + str(v) + "%' AND "
+                else:
+                    sql += k + " = '" + str(v) + "' AND "
+            elif k in paginate_conditions_list:
+                paginate_actual_lst.append(k + ' ' + str(v))
+        # sort paginate condition list first Limit second Offset
+        paginate_actual_lst.sort()
+        paginate_string = ' '.join(paginate_actual_lst)
+
+        # Delete last AND
+        sql = sql[:-4] + paginate_string
+        return sql
+
+#print(Get_currency_api.get_crypto_rate('usd','btc'))

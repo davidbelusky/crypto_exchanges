@@ -37,17 +37,37 @@ class DB_crypto_currencies():
             crypto_currency['amount'] = DecimalEncoder().default(crypto_currency['amount'])
         return currencies
 
-    def select_check_existed_currency(self,exchange_id,currency):
+    def select_check_existed_currency(self,exchange_id,currency ):
         self.cursor.execute("SELECT curr,favourite FROM crypto_currencies WHERE exchange_id = '{}' AND curr = '{}'".format(exchange_id,currency))
         currency = self.cursor.fetchone()
         return currency
+
+    def select_check_currencies_for_exchange_id(self,exchange_id):
+        self.cursor.execute("SELECT curr FROM crypto_currencies WHERE exchange_id = '{}'".format(exchange_id))
+        currencies = self.cursor.fetchall()
+        currencies_lst = [currency[0] for currency in currencies]
+        return currencies_lst
+
+    def select_check_balance_amount(self,exchange_id,currency):
+        self.cursor.execute("SELECT curr,amount FROM crypto_currencies WHERE exchange_id = '{}' AND curr = '{}'".format(exchange_id,currency))
+        currency = self.cursor.fetchone()
+        return currency
+
+    def select_crypto_name(self,exchange_id,currency_in,currency_out):
+        self.cursor.execute(
+            "SELECT name FROM crypto_currencies WHERE exchange_id = '{}' AND (curr = '{}' OR curr = '{}') ".format(exchange_id,currency_in,currency_out))
+        try:
+            crypto_name = self.cursor.fetchone()[0]
+        except TypeError:
+            return {'message':'Crypto name was not founded for this exchange_id'}
+        return crypto_name
 
     def insert_crypto_currency(self,json):
         try:
             self.cursor.execute("INSERT INTO crypto_currencies VALUES (DEFAULT, %s, %s, %s, %s, %s)",
                                 (json['name'], json['currency'], json['favourite'],0,json['exchange_id']))
         except errors.ForeignKeyViolation:
-            return {'message':'exchange id: {} doesnt exist'.format(json['exchange_id'])}
+            return {'message':'exchange id: {} doesnt exist'.format(json['exchange_id'])},400
 
         self.conn.commit()
         self.close_conn()
@@ -63,7 +83,10 @@ class DB_crypto_currencies():
         self.close_conn()
 
     def delete_table(self):
-        self.cursor.execute('DROP TABLE crypto_currencies')
+        #self.cursor.execute('DROP TABLE test1')
+        #self.cursor.execute('DROP TABLE test2dep')
+        #self.cursor.execute('DROP TABLE test3cry')
+        #self.cursor.execute('DROP TABLE test4tra')
         self.conn.commit()
         self.close_conn()
 
@@ -74,5 +97,10 @@ class DB_crypto_currencies():
         self.close_conn()
 
 
+
+#print(DB_crypto_currencies().select_crypto_name(1,'EUR','BTC'))
 #DB_crypto_currencies().create_table_crypto_currencies()
 #DB_crypto_currencies().delete_all()
+#DB_crypto_currencies().delete_table()
+
+

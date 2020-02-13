@@ -35,7 +35,7 @@ class DB_exchanges():
                                 (json['name'],json['currency'],0))
         except errors.UniqueViolation:
             #If name already exist in table return message
-            return {'message': 'Name is already in DB'}
+            return {'message': 'Name is already in DB'},400
         self.conn.commit()
         id,name,currency,amount = self.cursor.fetchone()
         self.close_conn()
@@ -46,7 +46,7 @@ class DB_exchanges():
     def insert_deposit_exchange(self,json):
         exchange_currency = self.select_check_exchange(json['exchange_id'])
         if exchange_currency == None:
-            return {'message':'Exchange id doesnt exist'}
+            return {'message':'Exchange id doesnt exist'},400
         #Get currency and actual amount of exchange id
         exchange_currency,actual_exchange_amount = exchange_currency
 
@@ -68,10 +68,10 @@ class DB_exchanges():
         return currency
 
     def delete_table(self):
-        self.cursor.execute('DROP TABLE crypto_exchanges')
+        #self.cursor.execute('DROP TABLE crypto_exchanges')
         #self.cursor.execute('DROP TABLE deposits')
         #self.cursor.execute('DROP TABLE crypto_currencies')
-        #self.cursor.execute('DROP TABLE trades')
+        self.cursor.execute('DROP TABLE trades')
         self.conn.commit()
         self.close_conn()
 
@@ -85,8 +85,8 @@ class DB_exchanges():
 
 
 
-DB_exchanges().create_tables_exchanges()
+#DB_exchanges().create_tables_exchanges()
 #DB_exchanges().insert_exchange()
-#DB_exchanges().select()
+#print(DB_exchanges().select_check_exchange(2))
 #DB_exchanges().delete_table()
 #DB_exchanges().delete_all()

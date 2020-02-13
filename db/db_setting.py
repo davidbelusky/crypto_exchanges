@@ -1,4 +1,4 @@
-import sys, os, psycopg2
+import os, psycopg2
 from dotenv import load_dotenv, find_dotenv
 
 class DB_connection:

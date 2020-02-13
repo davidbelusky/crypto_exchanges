@@ -1,4 +1,3 @@
-import requests
 from models.others import *
 
 class Add_exchange_model():
@@ -15,19 +14,18 @@ class Add_exchange_model():
         :param json: json to validate
         :return: Validated json or None
         """
-
         if len(json.keys()) > 2:
-            return {'message': 'Too much keys in json. Allowed keys = (name,currency)'}
+            return {'message': 'Too much keys in json. Allowed keys = (name,currency)'},400
         if len(json.keys()) < 2:
-            return {'message': 'Small amount of keys in json. Allowed keys = (name,currency)'}
+            return {'message': 'Small amount of keys in json. Allowed keys = (name,currency)'},400
         #Validate keys of posted JSON
         if ('name' in json) and ('currency' in json):
             if not (isinstance(json['name'],str) and (isinstance(json['currency'],str))):
-                return {'message': 'name and currency must be string'}
+                return {'message': 'name and currency must be string'},400
             #Check if inputted name is correct and delete whitespaces + capitalize text
             correcting_name = Correct_string.string_corrections(json['name'])
             if correcting_name == None:
-                return {'message':'Cannot use special characters for name, only underscore is allowed. Minimum length of name = 1'}
+                return {'message':'Cannot use special characters for name, only underscore is allowed. Minimum length of name = 1'},400
             #Set corrected and validated name to json
             json['name'] = correcting_name
             # Change currency to upper case
@@ -38,14 +36,14 @@ class Add_exchange_model():
                 return json
 
             elif len(json['currency']) != 3:
-                return {'message': 'Currency can be only 3 length character'}
+                return {'message': 'Currency can be only 3 length character'},400
             elif json['currency'] not in self.currency_list:
-                return {'message': "Currency - '" + json['currency'] + "' doesnt exist"}
+                return {'message': "Currency - '" + json['currency'] + "' doesnt exist"},400
 
         elif 'name' not in json:
-            return {'message': 'Key name is missing'}
+            return {'message': 'Key name is missing'},400
         elif 'currency' not in json:
-            return {'message': 'Key currency is missing'}
+            return {'message': 'Key currency is missing'},400
 
     def deposit_exchange(self,json):
         """
@@ -55,22 +53,22 @@ class Add_exchange_model():
         """
         if ('currency' in json) and ('amount' in json):
             if not (isinstance(json['currency'],str)):
-                return {'message':'Currency must be string'}
+                return {'message':'Currency must be string'},400
             json['currency'] = json['currency'].upper()
 
             try:
                 json['amount'] = float(json['amount'])
             except ValueError:
-                return {'message':'Amount must be float'}
+                return {'message':'Amount must be float'},400
 
             if len(json['currency']) != 3:
-                return {'message':'Currency can be only 3 length character'}
+                return {'message':'Currency can be only 3 length character'},400
             if json['currency'] not in self.currency_list:
-                return {'message':'Currency doesnt exists'}
+                return {'message':'Currency doesnt exists'},400
             #Return validated json
             return json
         else:
-            return {'message':'Keys can be only currency and amount'}
+            return {'message':'Keys can be only currency and amount'},400
 
     def deposit_convert_currency(self,deposit_currency,exchange_currency,amount):
         """
@@ -83,7 +81,7 @@ class Add_exchange_model():
         #If currencies are same return amount
         if deposit_currency == exchange_currency:
             return amount
-        rate = Get_currency_api.get_fiat_rate(deposit_currency,exchange_currency)
+        rate = Get_currency_api.get_crypto_rate(deposit_currency,exchange_currency)['rate']
         converted_amount = float(amount) * float(rate)
         return float(converted_amount)
 
