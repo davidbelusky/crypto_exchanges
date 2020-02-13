@@ -124,3 +124,4 @@ Add/Substract from crypto and exchange based on operation
 
 
 
+"# crypto_exchanges" 
