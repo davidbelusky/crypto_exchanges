@@ -9,7 +9,7 @@
 5. To run tests use: `nose2`
 
 ## Info:
-**Get list of crypto and fiat currencies** - Fiat and crypto currencies list getting from module data.py. There is also option for online API get data, but its commented for more faster run 
+**Get list of crypto and fiat currencies** - Fiat and crypto currencies list getting from module data.py. There is also option for online API get data, but its commented for faster run 
 
 **Exchange rates** from online API.
 
